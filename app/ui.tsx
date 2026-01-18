@@ -97,6 +97,11 @@ export function Monitor({ token }: MonitorProps) {
     setLogs(defaultLogsMessage);
   }
 
+  async function restartSelectedTask() {
+    if (!selectedTask) return;
+    await thattoolApi.restartTask(token, selectedTask.id);
+  }
+
 
    const selectedSubtask = useMemo(
      () => subtasks.find((s) => s.id === selectedSubtaskId) ?? null,
@@ -801,22 +806,35 @@ export function Monitor({ token }: MonitorProps) {
                 <div className="flex items-center justify-between gap-2">
                   <div className="text-sm font-medium">Tasks</div>
                   <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={!selectedTask || selectedTask.status !== "running"}
-                      onClick={() => stopSelectedTask().catch(() => null)}
-                    >
-                      Stop
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      disabled={!selectedTask || selectedTask.status === "running"}
-                      onClick={() => deleteSelectedTask().catch(() => null)}
-                    >
-                      Delete
-                    </Button>
+                     <Button
+                       variant="outline"
+                       size="sm"
+                       disabled={!selectedTask || selectedTask.status !== "running"}
+                       onClick={() => stopSelectedTask().catch(() => null)}
+                     >
+                       Stop
+                     </Button>
+                     <Button
+                       variant="secondary"
+                       size="sm"
+                       disabled={
+                         !selectedTask ||
+                         selectedTask.status === "running" ||
+                         selectedTask.status === "pending"
+                       }
+                       onClick={() => restartSelectedTask().catch(() => null)}
+                     >
+                       Restart
+                     </Button>
+                     <Button
+                       variant="destructive"
+                       size="sm"
+                       disabled={!selectedTask || selectedTask.status === "running"}
+                       onClick={() => deleteSelectedTask().catch(() => null)}
+                     >
+                       Delete
+                     </Button>
+
                   </div>
                 </div>
                 <ScrollArea className="h-[240px]">

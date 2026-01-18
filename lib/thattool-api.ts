@@ -102,11 +102,14 @@ export const thattoolApi = {
 
   createManualSubtask(token: string, body: CreateManualSubtaskRequest) {
     console.log("Creating manual subtask with body:", body);
-    return apiFetch<ApiSuccess<{ task: unknown; subtask: unknown }>>("/manual/subtask", {
-      token,
-      method: "POST",
-      body,
-    });
+    return apiFetch<ApiSuccess<{ task: unknown; subtask: unknown }>>(
+      "/manual/subtask",
+      {
+        token,
+        method: "POST",
+        body,
+      },
+    );
   },
 
   listProjects(token: string, pagination: Pagination = {}) {
@@ -116,12 +119,17 @@ export const thattoolApi = {
       query.set("offset", String(pagination.offset));
 
     const suffix = query.size ? `?${query.toString()}` : "";
-    return apiFetch<ApiSuccess<{ projects: Project[] }>>(`/task/projects${suffix}`,
-      { token }
+    return apiFetch<ApiSuccess<{ projects: Project[] }>>(
+      `/task/projects${suffix}`,
+      { token },
     );
   },
 
-  listProjectTasks(token: string, projectId: number, pagination: Pagination = {}) {
+  listProjectTasks(
+    token: string,
+    projectId: number,
+    pagination: Pagination = {},
+  ) {
     const query = new URLSearchParams();
     if (pagination.limit != null) query.set("limit", String(pagination.limit));
     if (pagination.offset != null)
@@ -130,7 +138,7 @@ export const thattoolApi = {
     const suffix = query.size ? `?${query.toString()}` : "";
     return apiFetch<ApiSuccess<{ tasks: Array<{ task: Task }> }>>(
       `/task/projects/${projectId}/tasks${suffix}`,
-      { token }
+      { token },
     );
   },
 
@@ -147,20 +155,15 @@ export const thattoolApi = {
     const suffix = query.size ? `?${query.toString()}` : "";
     return apiFetch<ApiSuccess<{ subtasks: Array<{ subtask: Subtask }> }>>(
       `/task/projects/${projectId}/subtasks${suffix}`,
-      { token }
-    );
-  },
-
-  getTaskLogs(token: string, taskId: number, subtaskId: number) {
-    const query = new URLSearchParams({ subtaskId: String(subtaskId) });
-    return apiFetch<ApiSuccess<{ logs?: string }>>(
-      `/task/${taskId}/logs?${query.toString()}`,
-      { token }
+      { token },
     );
   },
 
   streamTaskLogsUrl(taskId: number, subtaskId: number, token: string) {
-    const url = new URL(`/task/${taskId}/logs/stream`, env.NEXT_PUBLIC_LLM_BASE_URL);
+    const url = new URL(
+      `/task/${taskId}/logs/stream`,
+      env.NEXT_PUBLIC_LLM_BASE_URL,
+    );
     url.searchParams.set("subtaskId", String(subtaskId));
     url.searchParams.set("token", token);
     return url.toString();
@@ -183,6 +186,14 @@ export const thattoolApi = {
 
   deleteTask(token: string, taskId: number) {
     return apiFetch<ApiSuccess<{ success: boolean }>>(`/task/delete`, {
+      token,
+      method: "POST",
+      body: { taskId },
+    });
+  },
+
+  restartTask(token: string, taskId: number) {
+    return apiFetch<ApiSuccess<{ success: boolean }>>(`/task/restart`, {
       token,
       method: "POST",
       body: { taskId },
